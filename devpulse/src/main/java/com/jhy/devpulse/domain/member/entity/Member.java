@@ -1,8 +1,11 @@
 package com.jhy.devpulse.domain.member.entity;
 
 import com.jhy.devpulse.common.entity.BaseEntity;
+import com.jhy.devpulse.domain.project.entity.Project;
+
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.*;
 
 @Entity
 @Getter
@@ -22,6 +25,9 @@ public class Member extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false, length = 30)
+    private String name;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
@@ -31,4 +37,7 @@ public class Member extends BaseEntity {
     @Builder.Default
     private MemberStatus status = MemberStatus.ACTIVE;
 
+    @OneToMany(mappedBy = "member")
+    @Builder.Default
+    private List<Project> projects = new ArrayList<>();
 }
