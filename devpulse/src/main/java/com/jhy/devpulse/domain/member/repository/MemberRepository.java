@@ -1,7 +1,7 @@
 package com.jhy.devpulse.domain.member.repository;
 
-import java.lang.reflect.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import com.jhy.devpulse.domain.member.entity.Member;
 
 import java.util.Optional;
 
