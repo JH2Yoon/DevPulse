@@ -40,4 +40,25 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member")
     @Builder.Default
     private List<Project> projects = new ArrayList<>();
+
+    public static Member create(
+            String email,
+            String password,
+            String name) {
+        return Member.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .role(Role.USER)
+                .status(MemberStatus.ACTIVE)
+                .build();
+    }
+
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void deactivate() {
+        this.status = MemberStatus.INACTIVE;
+    }
 }
