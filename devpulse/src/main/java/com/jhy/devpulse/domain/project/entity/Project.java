@@ -43,4 +43,26 @@ public class Project extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "project")
     private List<Log> logs = new ArrayList<>();
+
+    public void update(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+
+    public void deactivate() {
+        this.status = ProjectStatus.INACTIVE;
+        super.delete();
+    }
+
+    public static Project create(
+            Member member,
+            String name,
+            String description) {
+        return Project.builder()
+                .member(member)
+                .name(name)
+                .description(description)
+                .status(ProjectStatus.ACTIVE)
+                .build();
+    }
 }
