@@ -37,8 +37,9 @@ public class Project extends BaseEntity {
     @Builder.Default
     private ProjectStatus status = ProjectStatus.ACTIVE;
 
-    @OneToOne(mappedBy = "project", fetch = FetchType.LAZY)
-    private ApiKey apiKey;
+    @OneToMany(mappedBy = "project")
+    @Builder.Default
+    private List<ApiKey> apiKeys = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "project")

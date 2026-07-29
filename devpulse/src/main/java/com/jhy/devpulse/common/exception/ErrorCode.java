@@ -21,6 +21,7 @@ public enum ErrorCode {
 
     // ApiKey
     API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API Key를 찾을 수 없습니다."),
+    API_KEY_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 API Key가 존재합니다."),
 
     // Log
     LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "로그를 찾을 수 없습니다.");
