@@ -33,4 +33,20 @@ public class Log extends BaseEntity {
 
     @Lob
     private String stackTrace;
+
+    public static Log create(
+            Project project,
+            LogLevel level,
+            String serviceName,
+            String message,
+            String stackTrace) {
+
+        return Log.builder()
+                .project(project)
+                .level(level)
+                .serviceName(serviceName)
+                .message(message)
+                .stackTrace(stackTrace)
+                .build();
+    }
 }
