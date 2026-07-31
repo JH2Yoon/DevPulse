@@ -24,7 +24,8 @@ public enum ErrorCode {
     API_KEY_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 API Key가 존재합니다."),
 
     // Log
-    LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "로그를 찾을 수 없습니다.");
+    LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "로그를 찾을 수 없습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
 
     private final HttpStatus status;
     private final String message;

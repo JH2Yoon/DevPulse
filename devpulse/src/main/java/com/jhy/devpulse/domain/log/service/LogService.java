@@ -1,7 +1,7 @@
 package com.jhy.devpulse.domain.log.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,44 +27,58 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class LogService {
 
-    private final LogRepository logRepository;
-    private final ApiKeyRepository apiKeyRepository;
-    private final ProjectRepository projectRepository;
-    private final MemberRepository memberRepository;
+        private final LogRepository logRepository;
+        private final ApiKeyRepository apiKeyRepository;
+        private final ProjectRepository projectRepository;
+        private final MemberRepository memberRepository;
 
-    @Transactional
-    public void createLog(String apiKey, CreateLogRequest request) {
+        @Transactional
+        public void createLog(String apiKey, CreateLogRequest request) {
 
-        ApiKey key = apiKeyRepository.findByApiKeyAndStatus(apiKey, ApiKeyStatus.ACTIVE)
-                .orElseThrow(() -> new CustomException(ErrorCode.API_KEY_NOT_FOUND));
+                ApiKey key = apiKeyRepository.findByApiKeyAndStatus(apiKey, ApiKeyStatus.ACTIVE)
+                                .orElseThrow(() -> new CustomException(ErrorCode.API_KEY_NOT_FOUND));
 
-        Project project = projectRepository.findByIdAndStatus(key.getProject().getId(), ProjectStatus.ACTIVE)
-                .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
+                Project project = projectRepository.findByIdAndStatus(key.getProject().getId(), ProjectStatus.ACTIVE)
+                                .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
 
-        Log log = Log.create(
-                project,
-                request.getLevel(),
-                request.getServiceName(),
-                request.getMessage(),
-                request.getStackTrace());
+                Log log = Log.create(
+                                project,
+                                request.getLevel(),
+                                request.getServiceName(),
+                                request.getMessage(),
+                                request.getStackTrace());
 
-        logRepository.save(log);
-    }
+                logRepository.save(log);
+        }
 
-    public List<LogResponse> getLogs(
-            Long memberId,
-            Long projectId) {
+        public Page<LogResponse> getLogs(Long memberId, Long projectId, Pageable pageable) {
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                Member member = memberRepository.findById(memberId)
+                                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-        Project project = projectRepository.findByIdAndMemberAndStatus(projectId, member, ProjectStatus.ACTIVE)
-                .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
+                Project project = projectRepository.findByIdAndMemberAndStatus(
+                                projectId,
+                                member,
+                                ProjectStatus.ACTIVE)
+                                .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
 
-        return logRepository
-                .findAllByProjectOrderByCreatedAtDesc(project)
-                .stream()
-                .map(LogResponse::from)
-                .toList();
-    }
+                return logRepository
+                                .findAllByProject(project, pageable)
+                                .map(LogResponse::from);
+        }
+
+        public LogResponse getLog(Long memberId, Long logId) {
+
+                Member member = memberRepository.findById(memberId)
+                                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+                Log log = logRepository.findById(logId)
+                                .orElseThrow(() -> new CustomException(ErrorCode.LOG_NOT_FOUND));
+
+                if (!log.getProject().getMember().equals(member)) {
+                        throw new CustomException(ErrorCode.ACCESS_DENIED);
+                }
+
+                return LogResponse.from(log);
+        }
 }
