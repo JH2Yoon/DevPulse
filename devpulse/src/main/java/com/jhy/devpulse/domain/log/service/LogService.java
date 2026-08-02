@@ -7,12 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jhy.devpulse.common.exception.CustomException;
 import com.jhy.devpulse.common.exception.ErrorCode;
+import com.jhy.devpulse.domain.alert.service.AlertService;
 import com.jhy.devpulse.domain.apikey.entity.ApiKey;
 import com.jhy.devpulse.domain.apikey.entity.ApiKeyStatus;
 import com.jhy.devpulse.domain.apikey.repository.ApiKeyRepository;
 import com.jhy.devpulse.domain.log.dto.request.CreateLogRequest;
 import com.jhy.devpulse.domain.log.dto.response.LogResponse;
 import com.jhy.devpulse.domain.log.entity.Log;
+import com.jhy.devpulse.domain.log.entity.LogLevel;
 import com.jhy.devpulse.domain.log.repository.LogRepository;
 import com.jhy.devpulse.domain.member.entity.Member;
 import com.jhy.devpulse.domain.member.repository.MemberRepository;
@@ -32,6 +34,8 @@ public class LogService {
         private final ProjectRepository projectRepository;
         private final MemberRepository memberRepository;
 
+        private final AlertService alertService;
+
         @Transactional
         public void createLog(String apiKey, CreateLogRequest request) {
 
@@ -48,7 +52,11 @@ public class LogService {
                                 request.getMessage(),
                                 request.getStackTrace());
 
-                logRepository.save(log);
+                Log savedLog = logRepository.save(log);
+
+                if (savedLog.getLevel() == LogLevel.ERROR) {
+                        alertService.createAlert(project, savedLog);
+                }
         }
 
         public Page<LogResponse> getLogs(Long memberId, Long projectId, Pageable pageable) {
