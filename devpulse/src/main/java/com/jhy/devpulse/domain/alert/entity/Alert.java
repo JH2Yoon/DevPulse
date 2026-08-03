@@ -1,7 +1,6 @@
 package com.jhy.devpulse.domain.alert.entity;
 
-import java.time.LocalDateTime;
-
+import com.jhy.devpulse.common.entity.BaseEntity;
 import com.jhy.devpulse.domain.log.entity.Log;
 import com.jhy.devpulse.domain.project.entity.Project;
 
@@ -14,7 +13,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Table(name = "alerts")
-public class Alert {
+public class Alert extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +32,6 @@ public class Alert {
     @Builder.Default
     private AlertStatus status = AlertStatus.UNREAD;
 
-    private LocalDateTime createdAt;
-
     public static Alert create(
             Project project,
             Log log) {
@@ -42,7 +39,6 @@ public class Alert {
         return Alert.builder()
                 .project(project)
                 .log(log)
-                .createdAt(LocalDateTime.now())
                 .build();
     }
 

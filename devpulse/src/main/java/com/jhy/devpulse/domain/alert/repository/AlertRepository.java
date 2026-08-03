@@ -10,9 +10,9 @@ import com.jhy.devpulse.domain.alert.entity.AlertStatus;
 import com.jhy.devpulse.domain.project.entity.Project;
 
 public interface AlertRepository extends JpaRepository<Alert, Long> {
-    List<Alert> findAllByProjectOrderByCreatedAtDesc(Project project);
+    List<Alert> findAllByProjectAndDeletedAtIsNullOrderByCreatedAtDesc(Project project);
 
-    Optional<Alert> findByIdAndProject(Long id, Project project);
+    Optional<Alert> findByIdAndProjectAndDeletedAtIsNull(Long id, Project project);
 
     long countByProjectAndStatus(Project project, AlertStatus status);
 }

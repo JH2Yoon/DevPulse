@@ -13,6 +13,7 @@ import com.jhy.devpulse.domain.alert.repository.AlertRepository;
 import com.jhy.devpulse.domain.log.entity.Log;
 import com.jhy.devpulse.domain.member.entity.Member;
 import com.jhy.devpulse.domain.member.repository.MemberRepository;
+import com.jhy.devpulse.domain.notification.service.NotificationService;
 import com.jhy.devpulse.domain.project.entity.Project;
 import com.jhy.devpulse.domain.project.entity.ProjectStatus;
 import com.jhy.devpulse.domain.project.repository.ProjectRepository;
@@ -24,64 +25,64 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class AlertService {
 
-    private final AlertRepository alertRepository;
-    private final MemberRepository memberRepository;
-    private final ProjectRepository projectRepository;
+        private final AlertRepository alertRepository;
+        private final MemberRepository memberRepository;
+        private final ProjectRepository projectRepository;
 
-    @Transactional
-    public void createAlert(Project project, Log log) {
+        private final NotificationService notificationService;
 
-        Alert alert = Alert.create(project, log);
+        @Transactional
+        public void createAlert(Project project, Log log) {
 
-        alertRepository.save(alert);
-    }
+                Alert alert = Alert.create(project, log);
 
-    public List<AlertResponse> getAlerts(
-            Long memberId,
-            Long projectId) {
+                Alert savedAlert = alertRepository.save(alert);
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                notificationService.sendAlert(savedAlert);
+        }
 
-        Project project = projectRepository
-                .findByIdAndMemberAndStatus(projectId, member, ProjectStatus.ACTIVE)
-                .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
+        public List<AlertResponse> getAlerts(Long memberId, Long projectId) {
 
-        return alertRepository.findAllByProjectOrderByCreatedAtDesc(project)
-                .stream()
-                .map(AlertResponse::from)
-                .toList();
-    }
+                Project project = getProject(memberId, projectId);
 
-    @Transactional
-    public void readAlert(Long memberId, Long projectId, Long alertId) {
+                return alertRepository
+                                .findAllByProjectAndDeletedAtIsNullOrderByCreatedAtDesc(project)
+                                .stream()
+                                .map(AlertResponse::from)
+                                .toList();
+        }
 
-        Project project = getProject(memberId, projectId);
+        @Transactional
+        public void readAlert(Long memberId, Long projectId, Long alertId) {
 
-        Alert alert = alertRepository.findByIdAndProject(alertId, project)
-                .orElseThrow(() -> new CustomException(ErrorCode.ALERT_NOT_FOUND));
+                Project project = getProject(memberId, projectId);
 
-        alert.read();
-    }
+                Alert alert = alertRepository
+                                .findByIdAndProjectAndDeletedAtIsNull(alertId, project)
+                                .orElseThrow(() -> new CustomException(ErrorCode.ALERT_NOT_FOUND));
 
-    @Transactional
-    public void deleteAlert(Long memberId, Long projectId, Long alertId) {
+                alert.read();
+        }
 
-        Project project = getProject(memberId, projectId);
+        @Transactional
+        public void deleteAlert(Long memberId, Long projectId, Long alertId) {
 
-        Alert alert = alertRepository.findByIdAndProject(alertId, project)
-                .orElseThrow(() -> new CustomException(ErrorCode.ALERT_NOT_FOUND));
+                Project project = getProject(memberId, projectId);
 
-        alertRepository.delete(alert);
-    }
+                Alert alert = alertRepository
+                                .findByIdAndProjectAndDeletedAtIsNull(alertId, project)
+                                .orElseThrow(() -> new CustomException(ErrorCode.ALERT_NOT_FOUND));
 
-    private Project getProject(Long memberId, Long projectId) {
+                alert.delete();
+        }
 
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        private Project getProject(Long memberId, Long projectId) {
 
-        return projectRepository
-                .findByIdAndMemberAndStatus(projectId, member, ProjectStatus.ACTIVE)
-                .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
-    }
+                Member member = memberRepository.findById(memberId)
+                                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+                return projectRepository
+                                .findByIdAndMemberAndStatus(projectId, member, ProjectStatus.ACTIVE)
+                                .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
+        }
 }
