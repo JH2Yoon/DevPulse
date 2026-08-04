@@ -6,17 +6,21 @@ import com.jhy.devpulse.domain.alert.entity.Alert;
 import com.jhy.devpulse.domain.log.entity.Log;
 import com.jhy.devpulse.domain.notification.client.DiscordWebhookClient;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
+    private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
+
     private final DiscordWebhookClient discordWebhookClient;
 
     public void sendAlert(Alert alert) {
 
-        Log log = alert.getLog();
+        Log alertLog = alert.getLog();
 
         String message = """
                 🚨 **DevPulse Alert**
@@ -29,11 +33,20 @@ public class NotificationService {
                 """
                 .formatted(
                         alert.getProject().getName(),
-                        log.getLevel(),
-                        log.getServiceName(),
-                        log.getMessage(),
+                        alertLog.getLevel(),
+                        alertLog.getServiceName(),
+                        alertLog.getMessage(),
                         alert.getCreatedAt());
 
-        discordWebhookClient.send(message);
+        try {
+            discordWebhookClient.send(message);
+
+        } catch (Exception e) {
+
+            log.error(
+                    "Discord notification failed. alertId={}",
+                    alert.getId(),
+                    e);
+        }
     }
 }
