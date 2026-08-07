@@ -3,6 +3,7 @@ package com.jhy.devpulse.domain.log.dto.response;
 import java.time.LocalDateTime;
 
 import com.jhy.devpulse.domain.log.entity.Log;
+import com.jhy.devpulse.domain.log.entity.LogDocument;
 import com.jhy.devpulse.domain.log.entity.LogLevel;
 
 import lombok.*;
@@ -20,6 +21,18 @@ public class LogResponse {
     private LocalDateTime createdAt;
 
     public static LogResponse from(Log log) {
+
+        return LogResponse.builder()
+                .id(log.getId())
+                .level(log.getLevel())
+                .serviceName(log.getServiceName())
+                .message(log.getMessage())
+                .stackTrace(log.getStackTrace())
+                .createdAt(log.getCreatedAt())
+                .build();
+    }
+
+    public static LogResponse from(LogDocument log) {
 
         return LogResponse.builder()
                 .id(log.getId())

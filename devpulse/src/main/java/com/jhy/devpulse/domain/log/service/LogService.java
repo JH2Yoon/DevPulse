@@ -12,10 +12,14 @@ import com.jhy.devpulse.domain.apikey.entity.ApiKey;
 import com.jhy.devpulse.domain.apikey.entity.ApiKeyStatus;
 import com.jhy.devpulse.domain.apikey.repository.ApiKeyRepository;
 import com.jhy.devpulse.domain.log.dto.request.CreateLogRequest;
+import com.jhy.devpulse.domain.log.dto.request.LogSearchCondition;
 import com.jhy.devpulse.domain.log.dto.response.LogResponse;
 import com.jhy.devpulse.domain.log.entity.Log;
+import com.jhy.devpulse.domain.log.entity.LogDocument;
 import com.jhy.devpulse.domain.log.entity.LogLevel;
+import com.jhy.devpulse.domain.log.repository.LogDocumentRepository;
 import com.jhy.devpulse.domain.log.repository.LogRepository;
+import com.jhy.devpulse.domain.log.repository.LogSearchRepository;
 import com.jhy.devpulse.domain.member.entity.Member;
 import com.jhy.devpulse.domain.member.repository.MemberRepository;
 import com.jhy.devpulse.domain.project.entity.Project;
@@ -33,6 +37,8 @@ public class LogService {
         private final ApiKeyRepository apiKeyRepository;
         private final ProjectRepository projectRepository;
         private final MemberRepository memberRepository;
+        private final LogDocumentRepository logDocumentRepository;
+        private final LogSearchRepository logSearchRepository;
 
         private final AlertService alertService;
 
@@ -54,24 +60,32 @@ public class LogService {
 
                 Log savedLog = logRepository.save(log);
 
+                logDocumentRepository.save(
+                                LogDocument.from(savedLog));
+
                 if (savedLog.getLevel() == LogLevel.ERROR) {
                         alertService.createAlert(project, savedLog);
                 }
         }
 
-        public Page<LogResponse> getLogs(Long memberId, Long projectId, Pageable pageable) {
+        public Page<LogResponse> getLogs(
+                        Long memberId,
+                        Long projectId,
+                        LogSearchCondition condition,
+                        Pageable pageable) {
 
                 Member member = memberRepository.findById(memberId)
                                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
-                Project project = projectRepository.findByIdAndMemberAndStatus(
-                                projectId,
-                                member,
-                                ProjectStatus.ACTIVE)
+                Project project = projectRepository
+                                .findByIdAndMemberAndStatus(
+                                                projectId,
+                                                member,
+                                                ProjectStatus.ACTIVE)
                                 .orElseThrow(() -> new CustomException(ErrorCode.PROJECT_NOT_FOUND));
 
-                return logRepository
-                                .findAllByProject(project, pageable)
+                return logSearchRepository
+                                .search(project.getId(), condition, pageable)
                                 .map(LogResponse::from);
         }
 
