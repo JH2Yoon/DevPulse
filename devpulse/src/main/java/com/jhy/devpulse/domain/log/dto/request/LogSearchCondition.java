@@ -15,10 +15,3 @@ public class LogSearchCondition {
 
     private String serviceName;
 }
-
-// public LogSearchCondition(String keyword, LogLevel level, String serviceName)
-// {
-// this.keyword = keyword;
-// this.level = level;
-// this.serviceName = serviceName;
-// }

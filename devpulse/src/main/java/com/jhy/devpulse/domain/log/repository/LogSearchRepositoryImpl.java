@@ -25,11 +25,6 @@ public class LogSearchRepositoryImpl implements LogSearchRepository {
                         LogSearchCondition condition,
                         Pageable pageable) {
 
-                System.out.println("projectId = " + projectId);
-                System.out.println("keyword = " + condition.getKeyword());
-                System.out.println("level = " + condition.getLevel());
-                System.out.println("serviceName = " + condition.getServiceName());
-
                 Query query = Query.of(q -> q.bool(bool -> {
 
                         // 프로젝트 조건
