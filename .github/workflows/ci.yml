@@ -22,14 +22,12 @@ jobs:
       mysql:
         image: mysql:8.4
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
-          MYSQL_USER: ${{ secrets.MYSQL_USER }}
-          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: devpulse
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=10
@@ -63,10 +61,10 @@ jobs:
       - name: Build and Test
         working-directory: ./devpulse
         env:
-          DB_URL: ${{ secrets.DB_URL }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          ELASTICSEARCH_URL: ${{ secrets.ELASTICSEARCH_URL }}
+          DB_URL: jdbc:mysql://localhost:3306/devpulse?serverTimezone=Asia/Seoul
+          DB_USERNAME: root
+          DB_PASSWORD: root
+          ELASTICSEARCH_URL: http://localhost:9200
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew clean build
