@@ -98,7 +98,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./devpulse
-          file: ./devpulse/Dockerfile
+          file: ./Dockerfile
           push: true
           tags: |
             ghcr.io/jh2yoon/devpulse:latest
