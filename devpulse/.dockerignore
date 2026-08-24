@@ -1,0 +1,21 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# Gradle cache
+.gradle
+
+# Build output
+build
+
+# Documentation
+README.md
+
+# OS
+.DS_Store
+Thumbs.db

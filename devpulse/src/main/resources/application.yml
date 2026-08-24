@@ -1,0 +1,27 @@
+#spring:
+#  application:
+#    name: devpulse
+#
+#  datasource:
+#    url: ${DB_URL}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+#
+#  elasticsearch:
+#    uris: ${ELASTICSEARCH_URL}
+#
+#discord:
+#  webhook-url: ${DISCORD_WEBHOOK_URL}
+#
+#jwt:
+#  secret-key: ${JWT_SECRET}
+#  access-token-expiration: 1800000
+#  refresh-token-expiration: 1209600000
