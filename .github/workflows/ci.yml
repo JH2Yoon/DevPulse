@@ -82,29 +82,32 @@ jobs:
   docker:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
+  
     needs: build
+  
     permissions:
       contents: read
       packages: write
+  
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        
+  
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+  
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
+  
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
           context: ./devpulse
-          file: ./Dockerfile
+          file: ./devpulse/Dockerfile
           push: true
           tags: |
             ghcr.io/jh2yoon/devpulse:latest
