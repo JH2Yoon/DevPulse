@@ -66,9 +66,10 @@ public class LogSearchRepositoryImpl implements LogSearchRepository {
                 }));
 
                 NativeQuery searchQuery = NativeQuery.builder()
-                                .withQuery(query)
-                                .withPageable(pageable)
-                                .build();
+                        .withQuery(query)
+                        .withPageable(pageable)
+                        .withTrackTotalHits(true)
+                        .build();
 
                 SearchHits<LogDocument> searchHits = elasticsearchOperations.search(
                                 searchQuery,
